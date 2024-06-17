@@ -3,6 +3,7 @@
 // 1. Import required dependencies
 import React, { useEffect, useRef, useState, memo } from "react";
 import { ArrowCircleRight, ChatCenteredDots, Stack, GitBranch } from "@phosphor-icons/react";
+import { CgAttachment } from "react-icons/cg";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { createClient } from "@supabase/supabase-js";
@@ -11,8 +12,10 @@ const SUPABASE_URL = "https://duvslrminwfswhezmqli.supabase.co";
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1dnNscm1pbndmc3doZXptcWxpIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTc4OTc4MDYsImV4cCI6MjAxMzQ3MzgwNn0.lvGJAaLpRr5X7uLVpS5IOqVbN8dXDsAjmkG31F8S380";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 // 3. Home component
 export default function Home() {
+ 
 // 4. Initialize states and refs
   const messagesEndRef = useRef(null);
   const [inputValue, setInputValue] = useState("");
@@ -66,6 +69,8 @@ export default function Home() {
       })
       .catch((err) => console.log("err", err));
   };
+
+  
 // 12. Render home component
   return (
     <div className="flex h-screen">
@@ -87,6 +92,20 @@ export default function Home() {
 }
 /* 17. Export InputArea component */
 export function InputArea({ inputValue, setInputValue, sendMessage }) {
+   //upload button logic    ------------ written by harshit 
+   const [file, setFile] = useState(null);
+   const handleFile = (event) => {
+     setFile(event.target.files[0]);
+     console.log(file);
+   };
+ 
+   const fileInputRef = useRef(null);
+ 
+   const openFileDialog = () => {
+     if (fileInputRef.current) {
+       fileInputRef.current.click();
+     }
+   };
 /* 18. Render input and send button */
   return (
     <div className="flex items-center py-3">
@@ -98,10 +117,27 @@ export function InputArea({ inputValue, setInputValue, sendMessage }) {
         onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && sendMessage()}
       />
-{/* 20. Create send button */}
+      
+      {/* 20. Create send button */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFile}
+        style={{ display: "none" }} // Hide the input element
+      />
+
+      {/* Attachment button that triggers the open file dialog */}
+      <button
+        className="bg-gray-300 text-white p-2 hover:bg-gray-600"
+        onClick={openFileDialog}
+        disabled={!fileInputRef.current} // Disable button initially
+      >
+        <CgAttachment size={25} />
+      </button> 
       <button onClick={sendMessage} className="bg-blue-500 text-white p-2 rounded-r-md hover:bg-blue-600">
         <ArrowCircleRight size={25} />
       </button>
+      
     </div>
   );
 }
